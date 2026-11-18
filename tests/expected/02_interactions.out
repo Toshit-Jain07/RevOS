@@ -1,0 +1,255 @@
+
+  __  __ _       _  ___  ____
+ |  \/  (_)_ __ (_)/ _ \/ ___|
+ | |\/| | | '_ \| | | | \___ \
+ | |  | | | | | | | |_| |___) |
+ |_|  |_|_|_| |_|_|\___/|____/
+        a tiny operating system
+
+[ OK ] Starting MiniOS kernel...
+[ OK ] Process table ready      (100 slots)
+[ OK ] Memory manager ready     (256 KB RAM)
+[ OK ] Scheduler ready          (Round Robin, quantum 3)
+[ OK ] File system mounted      (versioning ON)
+[ OK ] Doctor service started
+
+minios login: tester
+Welcome, tester! Type 'help' to see what you can do.
+
+tester@minios:/ [t=0]$ echo === T1: three-way deadlock cycle P1->P2->P3->P1 plus an innocent bystander P4 ===
+=== T1: three-way deadlock cycle P1->P2->P3->P1 plus an innocent bystander P4 ===
+tester@minios:/ [t=0]$ sched fcfs
+Scheduler switched to FCFS (first come first served) (at tick 0)
+tester@minios:/ [t=0]$ run a 5
+Created P1 'a'  burst=5  priority=5  memory=16 KB at address 0
+tester@minios:/ [t=0]$ run b 5
+Created P2 'b'  burst=5  priority=5  memory=16 KB at address 16
+tester@minios:/ [t=0]$ run c 5
+Created P3 'c'  burst=5  priority=5  memory=16 KB at address 32
+tester@minios:/ [t=0]$ run d 5
+Created P4 'd'  burst=5  priority=5  memory=16 KB at address 48
+tester@minios:/ [t=0]$ lock 1 r1
+P1 acquired 'r1'
+tester@minios:/ [t=0]$ lock 2 r2
+P2 acquired 'r2'
+tester@minios:/ [t=0]$ lock 3 r3
+P3 acquired 'r3'
+tester@minios:/ [t=0]$ lock 1 r2
+P1 is now BLOCKED: 'r2' is held by P2
+tester@minios:/ [t=0]$ lock 2 r3
+P2 is now BLOCKED: 'r3' is held by P3
+tester@minios:/ [t=0]$ lock 3 r1
+P3 is now BLOCKED: 'r1' is held by P1
+tester@minios:/ [t=0]$ doctor
+=== MiniOS doctor: health check at tick 0 ===
+[DEADLOCK] 3 processes are stuck in a circular wait:
+    P1 (a) wants 'r2', which is held by P2 (b)
+    P2 (b) wants 'r3', which is held by P3 (c)
+    P3 (c) wants 'r1', which is held by P1 (a)
+    Suggestion: run 'doctor fix', or 'kill' one of them.
+Summary: 1 problem(s) found.
+tester@minios:/ [t=0]$ doctor fix
+=== MiniOS doctor: health check at tick 0 ===
+[DEADLOCK] 3 processes are stuck in a circular wait:
+    P1 (a) wants 'r2', which is held by P2 (b)
+    P2 (b) wants 'r3', which is held by P3 (c)
+    P3 (c) wants 'r1', which is held by P1 (a)
+    FIX: killing P3 (c), the youngest process in the cycle, to break the deadlock
+  -> resource 'r3' is now granted to P2, which is READY again
+Summary: 1 problem(s) reported, 1 deadlock(s) fixed.
+tester@minios:/ [t=0]$ ps
+Scheduler: FCFS (first come first served) | aging off | tick 0
+ PID  NAME        STATE     PRI  BURST  LEFT  ARRIVE  MEM   WAITED
+ 1    a           BLOCKED   5    5      5     0       16    0       waits for 'r2'
+ 2    b           READY     5    5      5     0       16    0     
+ 3    c           KILLED    5    5      5     0       16    0     
+ 4    d           READY     5    5      5     0       16    0     
+tester@minios:/ [t=0]$ res
+  RESOURCE     HELD BY   WAITING
+  r1           P1        
+  r2           P2        P1 
+  r3           P2        
+tester@minios:/ [t=0]$ runall
+  -> resource 'r2' is now granted to P1, which is READY again
+Ran 15 tick(s). The clock is now at tick 15.
+Gantt chart, ticks 0 to 15   (# running, . waiting/blocked)
+     0         1       <- tens of the tick number
+     012345678901234   <- last digit of the tick number
+P1  |..........#####|  a
+P2  |.....#####     |  b
+P4  |#####          |  d
+CPU order: P4(0-5) P2(5-10) P1(10-15) 
+tester@minios:/ [t=15]$ echo === T2: process that is RUNNING asks for a held lock -> must leave the CPU ===
+=== T2: process that is RUNNING asks for a held lock -> must leave the CPU ===
+tester@minios:/ [t=15]$ reboot
+Rebooted. All processes, memory, resources and files were reset.
+tester@minios:/ [t=0]$ sched rr 4
+Scheduler switched to Round Robin, quantum 4 (at tick 0)
+tester@minios:/ [t=0]$ run x 8
+Created P1 'x'  burst=8  priority=5  memory=16 KB at address 0
+tester@minios:/ [t=0]$ run y 8
+Created P2 'y'  burst=8  priority=5  memory=16 KB at address 16
+tester@minios:/ [t=0]$ run z 8
+Created P3 'z'  burst=8  priority=5  memory=16 KB at address 32
+tester@minios:/ [t=0]$ lock 3 L
+P3 acquired 'L'
+tester@minios:/ [t=0]$ step 2
+t=0    P1 (x) runs, 7 left
+t=1    P1 (x) runs, 6 left
+tester@minios:/ [t=2]$ lock 1 L
+P1 is now BLOCKED: 'L' is held by P3
+tester@minios:/ [t=2]$ ps
+Scheduler: Round Robin, quantum 4 | aging off | tick 2
+ PID  NAME        STATE     PRI  BURST  LEFT  ARRIVE  MEM   WAITED
+ 1    x           BLOCKED   5    8      6     0       16    0       waits for 'L'
+ 2    y           READY     5    8      8     0       16    2     
+ 3    z           READY     5    8      8     0       16    2     
+tester@minios:/ [t=2]$ step 4
+t=2    P2 (y) runs, 7 left
+t=3    P2 (y) runs, 6 left
+t=4    P2 (y) runs, 5 left
+t=5    P2 (y) runs, 4 left
+tester@minios:/ [t=6]$ echo (x is blocked, y runs; now z unlocks)
+(x is blocked, y runs; now z unlocks)
+tester@minios:/ [t=6]$ unlock 3 L
+P3 released 'L'
+  -> resource 'L' is now granted to P1, which is READY again
+tester@minios:/ [t=6]$ ps
+Scheduler: Round Robin, quantum 4 | aging off | tick 6
+ PID  NAME        STATE     PRI  BURST  LEFT  ARRIVE  MEM   WAITED
+ 1    x           READY     5    8      6     0       16    4     
+ 2    y           RUNNING   5    8      4     0       16    2     
+ 3    z           READY     5    8      8     0       16    6     
+tester@minios:/ [t=6]$ runall
+Ran 18 tick(s). The clock is now at tick 24.
+Gantt chart, ticks 0 to 24   (# running, . waiting/blocked)
+     0         1         2      <- tens of the tick number
+     012345678901234567890123   <- last digit of the tick number
+P1  |##........####........##|  x
+P2  |..####........####      |  y
+P3  |......####........####  |  z
+CPU order: P1(0-2) P2(2-6) P3(6-10) P1(10-14) P2(14-18) P3(18-22) P1(22-24) 
+tester@minios:/ [t=24]$ echo === T3: kill the running process mid-slice ===
+=== T3: kill the running process mid-slice ===
+tester@minios:/ [t=24]$ reboot
+Rebooted. All processes, memory, resources and files were reset.
+tester@minios:/ [t=0]$ sched rr 5
+Scheduler switched to Round Robin, quantum 5 (at tick 0)
+tester@minios:/ [t=0]$ run m 6
+Created P1 'm'  burst=6  priority=5  memory=16 KB at address 0
+tester@minios:/ [t=0]$ run n 6
+Created P2 'n'  burst=6  priority=5  memory=16 KB at address 16
+tester@minios:/ [t=0]$ step 2
+t=0    P1 (m) runs, 5 left
+t=1    P1 (m) runs, 4 left
+tester@minios:/ [t=2]$ kill 1
+Killing P1 (m)...
+P1 killed. 16 KB of memory freed and its resources released.
+tester@minios:/ [t=2]$ step 1
+t=2    P2 (n) runs, 5 left
+tester@minios:/ [t=3]$ ps
+Scheduler: Round Robin, quantum 5 | aging off | tick 3
+ PID  NAME        STATE     PRI  BURST  LEFT  ARRIVE  MEM   WAITED
+ 1    m           KILLED    5    6      4     0       16    0     
+ 2    n           RUNNING   5    6      5     0       16    2     
+tester@minios:/ [t=3]$ runall
+Ran 5 tick(s). The clock is now at tick 8.
+Gantt chart, ticks 0 to 8   (# running, . waiting/blocked)
+     0          <- tens of the tick number
+     01234567   <- last digit of the tick number
+P1  |##      |  m
+P2  |..######|  n
+CPU order: P1(0-2) P2(2-8) 
+tester@minios:/ [t=8]$ echo === T4: kill a process that holds a lock someone waits for ===
+=== T4: kill a process that holds a lock someone waits for ===
+tester@minios:/ [t=8]$ reboot
+Rebooted. All processes, memory, resources and files were reset.
+tester@minios:/ [t=0]$ sched fcfs
+Scheduler switched to FCFS (first come first served) (at tick 0)
+tester@minios:/ [t=0]$ run h 5
+Created P1 'h'  burst=5  priority=5  memory=16 KB at address 0
+tester@minios:/ [t=0]$ run w 5
+Created P2 'w'  burst=5  priority=5  memory=16 KB at address 16
+tester@minios:/ [t=0]$ lock 1 key
+P1 acquired 'key'
+tester@minios:/ [t=0]$ lock 2 key
+P2 is now BLOCKED: 'key' is held by P1
+tester@minios:/ [t=0]$ doctor
+=== MiniOS doctor: health check at tick 0 ===
+[BLOCKED] P2 (w) waits for 'key' held by P1. This is not a deadlock; it continues when P1 unlocks it.
+Summary: 1 problem(s) found.
+tester@minios:/ [t=0]$ kill 1
+Killing P1 (h)...
+  -> resource 'key' is now granted to P2, which is READY again
+P1 killed. 16 KB of memory freed and its resources released.
+tester@minios:/ [t=0]$ ps
+Scheduler: FCFS (first come first served) | aging off | tick 0
+ PID  NAME        STATE     PRI  BURST  LEFT  ARRIVE  MEM   WAITED
+ 1    h           KILLED    5    5      5     0       16    0     
+ 2    w           READY     5    5      5     0       16    0     
+tester@minios:/ [t=0]$ res
+  RESOURCE     HELD BY   WAITING
+  key          P2        
+tester@minios:/ [t=0]$ runall
+Ran 5 tick(s). The clock is now at tick 5.
+Gantt chart, ticks 0 to 5   (# running, . waiting/blocked)
+     0       <- tens of the tick number
+     01234   <- last digit of the tick number
+P2  |#####|  w
+CPU order: P2(0-5) 
+tester@minios:/ [t=5]$ echo === T5: non-deadlock blocked chain ===
+=== T5: non-deadlock blocked chain ===
+tester@minios:/ [t=5]$ reboot
+Rebooted. All processes, memory, resources and files were reset.
+tester@minios:/ [t=0]$ run p 5
+Created P1 'p'  burst=5  priority=5  memory=16 KB at address 0
+tester@minios:/ [t=0]$ run q 5
+Created P2 'q'  burst=5  priority=5  memory=16 KB at address 16
+tester@minios:/ [t=0]$ lock 1 k
+P1 acquired 'k'
+tester@minios:/ [t=0]$ lock 2 k
+P2 is now BLOCKED: 'k' is held by P1
+tester@minios:/ [t=0]$ doctor
+=== MiniOS doctor: health check at tick 0 ===
+[BLOCKED] P2 (q) waits for 'k' held by P1. This is not a deadlock; it continues when P1 unlocks it.
+Summary: 1 problem(s) found.
+tester@minios:/ [t=0]$ echo === T6: process arrives while CPU is idle (gap in the Gantt chart) ===
+=== T6: process arrives while CPU is idle (gap in the Gantt chart) ===
+tester@minios:/ [t=0]$ reboot
+Rebooted. All processes, memory, resources and files were reset.
+tester@minios:/ [t=0]$ run first 2
+Created P1 'first'  burst=2  priority=5  memory=16 KB at address 0
+tester@minios:/ [t=0]$ runall
+Ran 2 tick(s). The clock is now at tick 2.
+Gantt chart, ticks 0 to 2   (# running, . waiting/blocked)
+     0    <- tens of the tick number
+     01   <- last digit of the tick number
+P1  |##|  first
+CPU order: P1(0-2) 
+tester@minios:/ [t=2]$ step 3
+t=2    idle
+t=3    idle
+t=4    idle
+tester@minios:/ [t=5]$ run second 2
+Created P2 'second'  burst=2  priority=5  memory=16 KB at address 0
+tester@minios:/ [t=5]$ runall
+Ran 2 tick(s). The clock is now at tick 7.
+Gantt chart, ticks 0 to 7   (# running, . waiting/blocked)
+     0         <- tens of the tick number
+     0123456   <- last digit of the tick number
+P1  |##     |  first
+P2  |     ##|  second
+CPU order: P1(0-2) idle(2-5) P2(5-7) 
+tester@minios:/ [t=7]$ stats
+=== MiniOS statistics (tick 7) ===
+Scheduler            : Round Robin, quantum 3
+Processes            : 2 finished, 0 killed, 0 still alive
+Avg waiting time     : 0.00 ticks
+Avg turnaround time  : 2.00 ticks
+Avg response time    : 0.00 ticks
+CPU utilization      : 57.1%  (4 busy ticks of 7)
+Throughput           : 0.286 processes per tick
+Context switches     : 0
+Memory               : 0 of 256 KB used (0%), fragmentation 0%
+tester@minios:/ [t=7]$ exit
+Shutting down MiniOS. Goodbye, tester!

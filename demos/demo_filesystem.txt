@@ -1,0 +1,40 @@
+toshit
+echo ===== File system demo: time-travel versions and the recycle bin =====
+echo (a background process keeps the clock moving so the version timestamps differ)
+run clock 40 5 4
+mkdir notes
+cd notes
+pwd
+write todo.txt buy milk
+step 3
+append todo.txt \nfinish OS project
+step 4
+append todo.txt \nsleep early
+ls
+cat todo.txt
+echo ----- every save is a version, with the tick it was saved at -----
+versions todo.txt
+diff todo.txt 1 2
+diff todo.txt 2 3
+echo ----- oops, go back to version 1. Nothing is lost: restore adds a NEW version -----
+restore todo.txt 1
+cat todo.txt
+versions todo.txt
+echo ----- deleting only moves the file to trash -----
+rm todo.txt
+ls
+trash
+recover todo.txt
+ls
+cat todo.txt
+echo ----- a folder with files cannot be removed; an empty one can -----
+cd /
+rmdir notes
+cd notes
+rm todo.txt
+cd /
+rmdir notes
+ls
+trash
+dmesg 12
+exit

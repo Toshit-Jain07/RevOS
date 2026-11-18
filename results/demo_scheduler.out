@@ -1,0 +1,324 @@
+
+  __  __ _       _  ___  ____
+ |  \/  (_)_ __ (_)/ _ \/ ___|
+ | |\/| | | '_ \| | | | \___ \
+ | |  | | | | | | | |_| |___) |
+ |_|  |_|_|_| |_|_|\___/|____/
+        a tiny operating system
+
+[ OK ] Starting MiniOS kernel...
+[ OK ] Process table ready      (100 slots)
+[ OK ] Memory manager ready     (256 KB RAM)
+[ OK ] Scheduler ready          (Round Robin, quantum 3)
+[ OK ] File system mounted      (versioning ON)
+[ OK ] Doctor service started
+
+minios login: toshit
+Welcome, toshit! Type 'help' to see what you can do.
+
+toshit@minios:/ [t=0]$ echo ===== Same workload under 5 schedulers. Processes A(8) B(4) C(9) D(5), all arrive at t=0 =====
+===== Same workload under 5 schedulers. Processes A(8) B(4) C(9) D(5), all arrive at t=0 =====
+toshit@minios:/ [t=0]$ echo ----- FCFS -----
+----- FCFS -----
+toshit@minios:/ [t=0]$ sched fcfs
+Scheduler switched to FCFS (first come first served) (at tick 0)
+toshit@minios:/ [t=0]$ run A 8 3 16
+Created P1 'A'  burst=8  priority=3  memory=16 KB at address 0
+toshit@minios:/ [t=0]$ run B 4 1 16
+Created P2 'B'  burst=4  priority=1  memory=16 KB at address 16
+toshit@minios:/ [t=0]$ run C 9 4 16
+Created P3 'C'  burst=9  priority=4  memory=16 KB at address 32
+toshit@minios:/ [t=0]$ run D 5 2 16
+Created P4 'D'  burst=5  priority=2  memory=16 KB at address 48
+toshit@minios:/ [t=0]$ runall
+Ran 26 tick(s). The clock is now at tick 26.
+Gantt chart, ticks 0 to 26   (# running, . waiting/blocked)
+     0         1         2        <- tens of the tick number
+     01234567890123456789012345   <- last digit of the tick number
+P1  |########                  |  A
+P2  |........####              |  B
+P3  |............#########     |  C
+P4  |.....................#####|  D
+CPU order: P1(0-8) P2(8-12) P3(12-21) P4(21-26) 
+toshit@minios:/ [t=26]$ stats
+=== MiniOS statistics (tick 26) ===
+Scheduler            : FCFS (first come first served)
+Processes            : 4 finished, 0 killed, 0 still alive
+Avg waiting time     : 10.25 ticks
+Avg turnaround time  : 16.75 ticks
+Avg response time    : 10.25 ticks
+CPU utilization      : 100.0%  (26 busy ticks of 26)
+Throughput           : 0.154 processes per tick
+Context switches     : 3
+Memory               : 0 of 256 KB used (0%), fragmentation 0%
+toshit@minios:/ [t=26]$ reboot
+Rebooted. All processes, memory, resources and files were reset.
+toshit@minios:/ [t=0]$ echo ----- SJF -----
+----- SJF -----
+toshit@minios:/ [t=0]$ sched sjf
+Scheduler switched to SJF (shortest job first, non-preemptive) (at tick 0)
+toshit@minios:/ [t=0]$ run A 8 3 16
+Created P1 'A'  burst=8  priority=3  memory=16 KB at address 0
+toshit@minios:/ [t=0]$ run B 4 1 16
+Created P2 'B'  burst=4  priority=1  memory=16 KB at address 16
+toshit@minios:/ [t=0]$ run C 9 4 16
+Created P3 'C'  burst=9  priority=4  memory=16 KB at address 32
+toshit@minios:/ [t=0]$ run D 5 2 16
+Created P4 'D'  burst=5  priority=2  memory=16 KB at address 48
+toshit@minios:/ [t=0]$ runall
+Ran 26 tick(s). The clock is now at tick 26.
+Gantt chart, ticks 0 to 26   (# running, . waiting/blocked)
+     0         1         2        <- tens of the tick number
+     01234567890123456789012345   <- last digit of the tick number
+P1  |.........########         |  A
+P2  |####                      |  B
+P3  |.................#########|  C
+P4  |....#####                 |  D
+CPU order: P2(0-4) P4(4-9) P1(9-17) P3(17-26) 
+toshit@minios:/ [t=26]$ stats
+=== MiniOS statistics (tick 26) ===
+Scheduler            : SJF (shortest job first, non-preemptive)
+Processes            : 4 finished, 0 killed, 0 still alive
+Avg waiting time     : 7.50 ticks
+Avg turnaround time  : 14.00 ticks
+Avg response time    : 7.50 ticks
+CPU utilization      : 100.0%  (26 busy ticks of 26)
+Throughput           : 0.154 processes per tick
+Context switches     : 3
+Memory               : 0 of 256 KB used (0%), fragmentation 0%
+toshit@minios:/ [t=26]$ reboot
+Rebooted. All processes, memory, resources and files were reset.
+toshit@minios:/ [t=0]$ echo ----- SRTF -----
+----- SRTF -----
+toshit@minios:/ [t=0]$ sched srtf
+Scheduler switched to SRTF (shortest remaining time first, preemptive) (at tick 0)
+toshit@minios:/ [t=0]$ run A 8 3 16
+Created P1 'A'  burst=8  priority=3  memory=16 KB at address 0
+toshit@minios:/ [t=0]$ run B 4 1 16
+Created P2 'B'  burst=4  priority=1  memory=16 KB at address 16
+toshit@minios:/ [t=0]$ run C 9 4 16
+Created P3 'C'  burst=9  priority=4  memory=16 KB at address 32
+toshit@minios:/ [t=0]$ run D 5 2 16
+Created P4 'D'  burst=5  priority=2  memory=16 KB at address 48
+toshit@minios:/ [t=0]$ runall
+Ran 26 tick(s). The clock is now at tick 26.
+Gantt chart, ticks 0 to 26   (# running, . waiting/blocked)
+     0         1         2        <- tens of the tick number
+     01234567890123456789012345   <- last digit of the tick number
+P1  |.........########         |  A
+P2  |####                      |  B
+P3  |.................#########|  C
+P4  |....#####                 |  D
+CPU order: P2(0-4) P4(4-9) P1(9-17) P3(17-26) 
+toshit@minios:/ [t=26]$ stats
+=== MiniOS statistics (tick 26) ===
+Scheduler            : SRTF (shortest remaining time first, preemptive)
+Processes            : 4 finished, 0 killed, 0 still alive
+Avg waiting time     : 7.50 ticks
+Avg turnaround time  : 14.00 ticks
+Avg response time    : 7.50 ticks
+CPU utilization      : 100.0%  (26 busy ticks of 26)
+Throughput           : 0.154 processes per tick
+Context switches     : 3
+Memory               : 0 of 256 KB used (0%), fragmentation 0%
+toshit@minios:/ [t=26]$ reboot
+Rebooted. All processes, memory, resources and files were reset.
+toshit@minios:/ [t=0]$ echo ----- Priority (0 = highest). Priorities: A=2 B=4 C=1 D=3 -----
+----- Priority (0 = highest). Priorities: A=2 B=4 C=1 D=3 -----
+toshit@minios:/ [t=0]$ sched priority
+Scheduler switched to Priority (preemptive, 0 = highest priority) (at tick 0)
+toshit@minios:/ [t=0]$ run A 8 2 16
+Created P1 'A'  burst=8  priority=2  memory=16 KB at address 0
+toshit@minios:/ [t=0]$ run B 4 4 16
+Created P2 'B'  burst=4  priority=4  memory=16 KB at address 16
+toshit@minios:/ [t=0]$ run C 9 1 16
+Created P3 'C'  burst=9  priority=1  memory=16 KB at address 32
+toshit@minios:/ [t=0]$ run D 5 3 16
+Created P4 'D'  burst=5  priority=3  memory=16 KB at address 48
+toshit@minios:/ [t=0]$ runall
+Ran 26 tick(s). The clock is now at tick 26.
+Gantt chart, ticks 0 to 26   (# running, . waiting/blocked)
+     0         1         2        <- tens of the tick number
+     01234567890123456789012345   <- last digit of the tick number
+P1  |.........########         |  A
+P2  |......................####|  B
+P3  |#########                 |  C
+P4  |.................#####    |  D
+CPU order: P3(0-9) P1(9-17) P4(17-22) P2(22-26) 
+toshit@minios:/ [t=26]$ stats
+=== MiniOS statistics (tick 26) ===
+Scheduler            : Priority (preemptive, 0 = highest priority)
+Processes            : 4 finished, 0 killed, 0 still alive
+Avg waiting time     : 12.00 ticks
+Avg turnaround time  : 18.50 ticks
+Avg response time    : 12.00 ticks
+CPU utilization      : 100.0%  (26 busy ticks of 26)
+Throughput           : 0.154 processes per tick
+Context switches     : 3
+Memory               : 0 of 256 KB used (0%), fragmentation 0%
+toshit@minios:/ [t=26]$ reboot
+Rebooted. All processes, memory, resources and files were reset.
+toshit@minios:/ [t=0]$ echo ----- Round Robin, quantum 3 -----
+----- Round Robin, quantum 3 -----
+toshit@minios:/ [t=0]$ sched rr 3
+Scheduler switched to Round Robin, quantum 3 (at tick 0)
+toshit@minios:/ [t=0]$ run A 8 3 16
+Created P1 'A'  burst=8  priority=3  memory=16 KB at address 0
+toshit@minios:/ [t=0]$ run B 4 1 16
+Created P2 'B'  burst=4  priority=1  memory=16 KB at address 16
+toshit@minios:/ [t=0]$ run C 9 4 16
+Created P3 'C'  burst=9  priority=4  memory=16 KB at address 32
+toshit@minios:/ [t=0]$ run D 5 2 16
+Created P4 'D'  burst=5  priority=2  memory=16 KB at address 48
+toshit@minios:/ [t=0]$ runall
+Ran 26 tick(s). The clock is now at tick 26.
+Gantt chart, ticks 0 to 26   (# running, . waiting/blocked)
+     0         1         2        <- tens of the tick number
+     01234567890123456789012345   <- last digit of the tick number
+P1  |###.........###......##   |  A
+P2  |...###.........#          |  B
+P3  |......###.......###....###|  C
+P4  |.........###.......##     |  D
+CPU order: P1(0-3) P2(3-6) P3(6-9) P4(9-12) P1(12-15) P2(15-16) P3(16-19) P4(19-21) P1(21-23) P3(23-26) 
+toshit@minios:/ [t=26]$ stats
+=== MiniOS statistics (tick 26) ===
+Scheduler            : Round Robin, quantum 3
+Processes            : 4 finished, 0 killed, 0 still alive
+Avg waiting time     : 15.00 ticks
+Avg turnaround time  : 21.50 ticks
+Avg response time    : 4.50 ticks
+CPU utilization      : 100.0%  (26 busy ticks of 26)
+Throughput           : 0.154 processes per tick
+Context switches     : 9
+Memory               : 0 of 256 KB used (0%), fragmentation 0%
+toshit@minios:/ [t=26]$ echo ----- Late arrival: SJF cannot preempt, SRTF can. L(10) starts, then S(2) arrives at t=3 -----
+----- Late arrival: SJF cannot preempt, SRTF can. L(10) starts, then S(2) arrives at t=3 -----
+toshit@minios:/ [t=26]$ reboot
+Rebooted. All processes, memory, resources and files were reset.
+toshit@minios:/ [t=0]$ sched sjf
+Scheduler switched to SJF (shortest job first, non-preemptive) (at tick 0)
+toshit@minios:/ [t=0]$ run L 10 5 16
+Created P1 'L'  burst=10  priority=5  memory=16 KB at address 0
+toshit@minios:/ [t=0]$ step 3
+t=0    P1 (L) runs, 9 left
+t=1    P1 (L) runs, 8 left
+t=2    P1 (L) runs, 7 left
+toshit@minios:/ [t=3]$ run S 2 5 16
+Created P2 'S'  burst=2  priority=5  memory=16 KB at address 16
+toshit@minios:/ [t=3]$ runall
+Ran 9 tick(s). The clock is now at tick 12.
+Gantt chart, ticks 0 to 12   (# running, . waiting/blocked)
+     0         1    <- tens of the tick number
+     012345678901   <- last digit of the tick number
+P1  |##########  |  L
+P2  |   .......##|  S
+CPU order: P1(0-10) P2(10-12) 
+toshit@minios:/ [t=12]$ stats
+=== MiniOS statistics (tick 12) ===
+Scheduler            : SJF (shortest job first, non-preemptive)
+Processes            : 2 finished, 0 killed, 0 still alive
+Avg waiting time     : 3.50 ticks
+Avg turnaround time  : 9.50 ticks
+Avg response time    : 3.50 ticks
+CPU utilization      : 100.0%  (12 busy ticks of 12)
+Throughput           : 0.167 processes per tick
+Context switches     : 1
+Memory               : 0 of 256 KB used (0%), fragmentation 0%
+toshit@minios:/ [t=12]$ reboot
+Rebooted. All processes, memory, resources and files were reset.
+toshit@minios:/ [t=0]$ sched srtf
+Scheduler switched to SRTF (shortest remaining time first, preemptive) (at tick 0)
+toshit@minios:/ [t=0]$ run L 10 5 16
+Created P1 'L'  burst=10  priority=5  memory=16 KB at address 0
+toshit@minios:/ [t=0]$ step 3
+t=0    P1 (L) runs, 9 left
+t=1    P1 (L) runs, 8 left
+t=2    P1 (L) runs, 7 left
+toshit@minios:/ [t=3]$ run S 2 5 16
+Created P2 'S'  burst=2  priority=5  memory=16 KB at address 16
+toshit@minios:/ [t=3]$ runall
+Ran 9 tick(s). The clock is now at tick 12.
+Gantt chart, ticks 0 to 12   (# running, . waiting/blocked)
+     0         1    <- tens of the tick number
+     012345678901   <- last digit of the tick number
+P1  |###..#######|  L
+P2  |   ##       |  S
+CPU order: P1(0-3) P2(3-5) P1(5-12) 
+toshit@minios:/ [t=12]$ stats
+=== MiniOS statistics (tick 12) ===
+Scheduler            : SRTF (shortest remaining time first, preemptive)
+Processes            : 2 finished, 0 killed, 0 still alive
+Avg waiting time     : 1.00 ticks
+Avg turnaround time  : 7.00 ticks
+Avg response time    : 0.00 ticks
+CPU utilization      : 100.0%  (12 busy ticks of 12)
+Throughput           : 0.167 processes per tick
+Context switches     : 2
+Memory               : 0 of 256 KB used (0%), fragmentation 0%
+toshit@minios:/ [t=12]$ echo ----- Live switch: change the algorithm while processes are half done -----
+----- Live switch: change the algorithm while processes are half done -----
+toshit@minios:/ [t=12]$ reboot
+Rebooted. All processes, memory, resources and files were reset.
+toshit@minios:/ [t=0]$ sched rr 2
+Scheduler switched to Round Robin, quantum 2 (at tick 0)
+toshit@minios:/ [t=0]$ run X 6 5 16
+Created P1 'X'  burst=6  priority=5  memory=16 KB at address 0
+toshit@minios:/ [t=0]$ run Y 3 5 16
+Created P2 'Y'  burst=3  priority=5  memory=16 KB at address 16
+toshit@minios:/ [t=0]$ run Z 8 5 16
+Created P3 'Z'  burst=8  priority=5  memory=16 KB at address 32
+toshit@minios:/ [t=0]$ step 5
+t=0    P1 (X) runs, 5 left
+t=1    P1 (X) runs, 4 left
+t=2    P2 (Y) runs, 2 left
+t=3    P2 (Y) runs, 1 left
+t=4    P3 (Z) runs, 7 left
+toshit@minios:/ [t=5]$ ps
+Scheduler: Round Robin, quantum 2 | aging off | tick 5
+ PID  NAME        STATE     PRI  BURST  LEFT  ARRIVE  MEM   WAITED
+ 1    X           READY     5    6      4     0       16    3     
+ 2    Y           READY     5    3      1     0       16    3     
+ 3    Z           RUNNING   5    8      7     0       16    4     
+toshit@minios:/ [t=5]$ sched srtf
+Scheduler switched to SRTF (shortest remaining time first, preemptive) (at tick 5)
+toshit@minios:/ [t=5]$ step 3
+t=5    P2 (Y) runs, 0 left   -> FINISHED
+t=6    P1 (X) runs, 3 left
+t=7    P1 (X) runs, 2 left
+toshit@minios:/ [t=8]$ sched fcfs
+Scheduler switched to FCFS (first come first served) (at tick 8)
+toshit@minios:/ [t=8]$ runall
+Ran 9 tick(s). The clock is now at tick 17.
+Gantt chart, ticks 0 to 17   (# running, . waiting/blocked)
+     0         1         <- tens of the tick number
+     01234567890123456   <- last digit of the tick number
+P1  |##....####       |  X
+P2  |..##.#           |  Y
+P3  |....#.....#######|  Z
+CPU order: P1(0-2) P2(2-4) P3(4-5) P2(5-6) P1(6-10) P3(10-17) 
+toshit@minios:/ [t=17]$ stats
+=== MiniOS statistics (tick 17) ===
+Scheduler            : FCFS (first come first served)
+Processes            : 3 finished, 0 killed, 0 still alive
+Avg waiting time     : 5.33 ticks
+Avg turnaround time  : 11.00 ticks
+Avg response time    : 2.00 ticks
+CPU utilization      : 100.0%  (17 busy ticks of 17)
+Throughput           : 0.176 processes per tick
+Context switches     : 5
+Memory               : 0 of 256 KB used (0%), fragmentation 0%
+toshit@minios:/ [t=17]$ dmesg 12
+[tick 0012] P1 (L) finished
+[tick 0000] ---- system rebooted ----
+[tick 0000] scheduler switched to Round Robin
+[tick 0000] P1 (X) created, burst 6, priority 5, 16 KB
+[tick 0000] P2 (Y) created, burst 3, priority 5, 16 KB
+[tick 0000] P3 (Z) created, burst 8, priority 5, 16 KB
+[tick 0005] scheduler switched to SRTF (shortest remaining time first, preemptive)
+[tick 0005] P3 preempted by P2
+[tick 0006] P2 (Y) finished
+[tick 0008] scheduler switched to FCFS (first come first served)
+[tick 0010] P1 (X) finished
+[tick 0017] P3 (Z) finished
+toshit@minios:/ [t=17]$ exit
+Shutting down MiniOS. Goodbye, toshit!

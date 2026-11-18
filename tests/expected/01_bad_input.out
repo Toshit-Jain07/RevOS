@@ -1,0 +1,281 @@
+
+  __  __ _       _  ___  ____
+ |  \/  (_)_ __ (_)/ _ \/ ___|
+ | |\/| | | '_ \| | | | \___ \
+ | |  | | | | | | | |_| |___) |
+ |_|  |_|_|_| |_|_|\___/|____/
+        a tiny operating system
+
+[ OK ] Starting MiniOS kernel...
+[ OK ] Process table ready      (100 slots)
+[ OK ] Memory manager ready     (256 KB RAM)
+[ OK ] Scheduler ready          (Round Robin, quantum 3)
+[ OK ] File system mounted      (versioning ON)
+[ OK ] Doctor service started
+
+minios login: 
+Welcome, guest! Type 'help' to see what you can do.
+
+guest@minios:/ [t=0]$    
+guest@minios:/ [t=0]$ hello
+minios: command not found: hello   (type 'help')
+guest@minios:/ [t=0]$ run
+usage: run <name> <burst> [priority 0-9] [memory KB]
+guest@minios:/ [t=0]$ run a
+usage: run <name> <burst> [priority 0-9] [memory KB]
+guest@minios:/ [t=0]$ run a 0
+run: burst must be a number from 1 to 500
+guest@minios:/ [t=0]$ run a -5
+run: burst must be a number from 1 to 500
+guest@minios:/ [t=0]$ run a abc
+run: burst must be a number from 1 to 500
+guest@minios:/ [t=0]$ run a 5 99
+run: priority must be a number from 0 to 9
+guest@minios:/ [t=0]$ run a 5 x
+run: priority must be a number from 0 to 9
+guest@minios:/ [t=0]$ run a 5 5 0
+run: memory must be from 1 to 256 KB
+guest@minios:/ [t=0]$ run a 5 5 9999
+run: memory must be from 1 to 256 KB
+guest@minios:/ [t=0]$ run averyveryverylongname 5
+run: name is too long (maximum 10 characters)
+guest@minios:/ [t=0]$ kill
+usage: kill <pid>
+guest@minios:/ [t=0]$ kill 99
+kill: no such process '99'
+guest@minios:/ [t=0]$ kill abc
+kill: no such process 'abc'
+guest@minios:/ [t=0]$ lock 1 x
+lock: no such process '1'
+guest@minios:/ [t=0]$ unlock 1 x
+unlock: process '1' does not hold 'x'
+guest@minios:/ [t=0]$ step 0
+usage: step [number of ticks, 1-1000]
+guest@minios:/ [t=0]$ step abc
+usage: step [number of ticks, 1-1000]
+guest@minios:/ [t=0]$ sched
+Current scheduler: Round Robin, quantum 3
+Change with: sched fcfs | sjf | srtf | priority | rr [quantum]
+guest@minios:/ [t=0]$ sched foo
+usage: sched fcfs | sjf | srtf | priority | rr [quantum]
+guest@minios:/ [t=0]$ sched rr 0
+sched: quantum must be from 1 to 50
+guest@minios:/ [t=0]$ sched rr 99
+sched: quantum must be from 1 to 50
+guest@minios:/ [t=0]$ aging maybe
+usage: aging on | off
+guest@minios:/ [t=0]$ fit weird
+usage: fit first | best | worst
+guest@minios:/ [t=0]$ crash
+crash: there is no live process to crash.
+guest@minios:/ [t=0]$ crash 7
+crash: there is no live process to crash.
+guest@minios:/ [t=0]$ doctor
+=== MiniOS doctor: health check at tick 0 ===
+System healthy. No problems found.
+guest@minios:/ [t=0]$ gantt
+Nothing has run yet.
+guest@minios:/ [t=0]$ stats
+=== MiniOS statistics (tick 0) ===
+Scheduler            : Round Robin, quantum 3
+Processes            : 0 finished, 0 killed, 0 still alive
+Avg waiting/turnaround/response: no finished process yet
+CPU utilization      : 0.0%
+Context switches     : 0
+Memory               : 0 of 256 KB used (0%), fragmentation 0%
+guest@minios:/ [t=0]$ ps
+Scheduler: Round Robin, quantum 3 | aging off | tick 0
+No processes yet. Create one with: run <name> <burst>
+guest@minios:/ [t=0]$ res
+No resources yet. Create one by using: lock <pid> <resource>
+guest@minios:/ [t=0]$ memmap
+Memory map  (each cell = 4 KB, total = 256 KB, strategy = first-fit)
+[................................................................]
+  Start   End   Size  Owner
+      0   255   256  free
+Used: 0 KB (0%)   Free: 256 KB   Largest free hole: 256 KB   External fragmentation: 0%
+guest@minios:/ [t=0]$ cd nothere
+cd: no such folder 'nothere'
+guest@minios:/ [t=0]$ cat nothere
+cat: no such file 'nothere'
+guest@minios:/ [t=0]$ write
+usage: write <file> <text>
+guest@minios:/ [t=0]$ write f
+usage: write <file> <text>
+guest@minios:/ [t=0]$ append
+usage: append <file> <text>
+guest@minios:/ [t=0]$ append f
+usage: append <file> <text>
+guest@minios:/ [t=0]$ touch
+usage: touch <file>
+guest@minios:/ [t=0]$ mkdir
+usage: mkdir <name>
+guest@minios:/ [t=0]$ mkdir a/b
+mkdir: invalid name (no '/', maximum 30 characters)
+guest@minios:/ [t=0]$ mkdir ..
+mkdir: invalid name (no '/', maximum 30 characters)
+guest@minios:/ [t=0]$ touch ../x
+touch: invalid name (no '/', maximum 30 characters)
+guest@minios:/ [t=0]$ versions nothere
+versions: no such file 'nothere'
+guest@minios:/ [t=0]$ restore nothere 1
+restore: no such file 'nothere'
+guest@minios:/ [t=0]$ diff nothere 1 2
+diff: no such file 'nothere'
+guest@minios:/ [t=0]$ rm
+usage: rm <file>
+guest@minios:/ [t=0]$ rmdir
+usage: rmdir [-r] <folder>
+guest@minios:/ [t=0]$ rmdir nothere
+rmdir: no such folder 'nothere'
+guest@minios:/ [t=0]$ recover
+usage: recover <file>
+guest@minios:/ [t=0]$ recover nothere
+recover: 'nothere' is not in the trash
+guest@minios:/ [t=0]$ history
+    1  hello
+    2  run
+    3  run a
+    4  run a 0
+    5  run a -5
+    6  run a abc
+    7  run a 5 99
+    8  run a 5 x
+    9  run a 5 5 0
+   10  run a 5 5 9999
+   11  run averyveryverylongname 5
+   12  kill
+   13  kill 99
+   14  kill abc
+   15  lock 1 x
+   16  unlock 1 x
+   17  step 0
+   18  step abc
+   19  sched
+   20  sched foo
+   21  sched rr 0
+   22  sched rr 99
+   23  aging maybe
+   24  fit weird
+   25  crash
+   26  crash 7
+   27  doctor
+   28  gantt
+   29  stats
+   30  ps
+   31  res
+   32  memmap
+   33  cd nothere
+   34  cat nothere
+   35  write
+   36  write f
+   37  append
+   38  append f
+   39  touch
+   40  mkdir
+   41  mkdir a/b
+   42  mkdir ..
+   43  touch ../x
+   44  versions nothere
+   45  restore nothere 1
+   46  diff nothere 1 2
+   47  rm
+   48  rmdir
+   49  rmdir nothere
+   50  recover
+   51  recover nothere
+   52  history
+guest@minios:/ [t=0]$ !99
+history: no such command
+guest@minios:/ [t=0]$ !0
+history: no such command
+guest@minios:/ [t=0]$ !!
+(running: history)
+    1  hello
+    2  run
+    3  run a
+    4  run a 0
+    5  run a -5
+    6  run a abc
+    7  run a 5 99
+    8  run a 5 x
+    9  run a 5 5 0
+   10  run a 5 5 9999
+   11  run averyveryverylongname 5
+   12  kill
+   13  kill 99
+   14  kill abc
+   15  lock 1 x
+   16  unlock 1 x
+   17  step 0
+   18  step abc
+   19  sched
+   20  sched foo
+   21  sched rr 0
+   22  sched rr 99
+   23  aging maybe
+   24  fit weird
+   25  crash
+   26  crash 7
+   27  doctor
+   28  gantt
+   29  stats
+   30  ps
+   31  res
+   32  memmap
+   33  cd nothere
+   34  cat nothere
+   35  write
+   36  write f
+   37  append
+   38  append f
+   39  touch
+   40  mkdir
+   41  mkdir a/b
+   42  mkdir ..
+   43  touch ../x
+   44  versions nothere
+   45  restore nothere 1
+   46  diff nothere 1 2
+   47  rm
+   48  rmdir
+   49  rmdir nothere
+   50  recover
+   51  recover nothere
+   52  history
+   53  history
+guest@minios:/ [t=0]$ dmesg 0
+[tick 0000] kernel booted
+[tick 0000] user 'guest' logged in
+[tick 0000] doctor ran: 0 problem(s), 0 fixed
+guest@minios:/ [t=0]$ dmesg abc
+[tick 0000] kernel booted
+[tick 0000] user 'guest' logged in
+[tick 0000] doctor ran: 0 problem(s), 0 fixed
+guest@minios:/ [t=0]$ whoami
+guest
+guest@minios:/ [t=0]$ echo   spaced    text \n newline
+spaced    text 
+ newline
+guest@minios:/ [t=0]$ reboot
+Rebooted. All processes, memory, resources and files were reset.
+guest@minios:/ [t=0]$ rmver
+usage: rmver <file> <version number>
+guest@minios:/ [t=0]$ rmver f
+usage: rmver <file> <version number>
+guest@minios:/ [t=0]$ rmver nofile 1
+rmver: no such file 'nofile'
+guest@minios:/ [t=0]$ prune
+usage: prune <file> <how many newest versions to keep>
+guest@minios:/ [t=0]$ prune nofile 2
+prune: no such file 'nofile'
+guest@minios:/ [t=0]$ purge
+usage: purge <file>
+guest@minios:/ [t=0]$ purge nofile
+purge: no such file 'nofile'
+guest@minios:/ [t=0]$ rmdir -r
+usage: rmdir [-r] <folder>
+guest@minios:/ [t=0]$ rmdir -r nothere
+rmdir: no such folder 'nothere'
+guest@minios:/ [t=0]$ exit
+Shutting down MiniOS. Goodbye, guest!

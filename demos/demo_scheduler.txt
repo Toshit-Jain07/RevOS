@@ -1,0 +1,76 @@
+toshit
+echo ===== Same workload under 5 schedulers. Processes A(8) B(4) C(9) D(5), all arrive at t=0 =====
+echo ----- FCFS -----
+sched fcfs
+run A 8 3 16
+run B 4 1 16
+run C 9 4 16
+run D 5 2 16
+runall
+stats
+reboot
+echo ----- SJF -----
+sched sjf
+run A 8 3 16
+run B 4 1 16
+run C 9 4 16
+run D 5 2 16
+runall
+stats
+reboot
+echo ----- SRTF -----
+sched srtf
+run A 8 3 16
+run B 4 1 16
+run C 9 4 16
+run D 5 2 16
+runall
+stats
+reboot
+echo ----- Priority (0 = highest). Priorities: A=2 B=4 C=1 D=3 -----
+sched priority
+run A 8 2 16
+run B 4 4 16
+run C 9 1 16
+run D 5 3 16
+runall
+stats
+reboot
+echo ----- Round Robin, quantum 3 -----
+sched rr 3
+run A 8 3 16
+run B 4 1 16
+run C 9 4 16
+run D 5 2 16
+runall
+stats
+echo ----- Late arrival: SJF cannot preempt, SRTF can. L(10) starts, then S(2) arrives at t=3 -----
+reboot
+sched sjf
+run L 10 5 16
+step 3
+run S 2 5 16
+runall
+stats
+reboot
+sched srtf
+run L 10 5 16
+step 3
+run S 2 5 16
+runall
+stats
+echo ----- Live switch: change the algorithm while processes are half done -----
+reboot
+sched rr 2
+run X 6 5 16
+run Y 3 5 16
+run Z 8 5 16
+step 5
+ps
+sched srtf
+step 3
+sched fcfs
+runall
+stats
+dmesg 12
+exit

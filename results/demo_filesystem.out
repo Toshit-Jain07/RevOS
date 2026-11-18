@@ -1,0 +1,118 @@
+
+  __  __ _       _  ___  ____
+ |  \/  (_)_ __ (_)/ _ \/ ___|
+ | |\/| | | '_ \| | | | \___ \
+ | |  | | | | | | | |_| |___) |
+ |_|  |_|_|_| |_|_|\___/|____/
+        a tiny operating system
+
+[ OK ] Starting MiniOS kernel...
+[ OK ] Process table ready      (100 slots)
+[ OK ] Memory manager ready     (256 KB RAM)
+[ OK ] Scheduler ready          (Round Robin, quantum 3)
+[ OK ] File system mounted      (versioning ON)
+[ OK ] Doctor service started
+
+minios login: toshit
+Welcome, toshit! Type 'help' to see what you can do.
+
+toshit@minios:/ [t=0]$ echo ===== File system demo: time-travel versions and the recycle bin =====
+===== File system demo: time-travel versions and the recycle bin =====
+toshit@minios:/ [t=0]$ echo (a background process keeps the clock moving so the version timestamps differ)
+(a background process keeps the clock moving so the version timestamps differ)
+toshit@minios:/ [t=0]$ run clock 40 5 4
+Created P1 'clock'  burst=40  priority=5  memory=4 KB at address 0
+toshit@minios:/ [t=0]$ mkdir notes
+toshit@minios:/ [t=0]$ cd notes
+toshit@minios:/notes [t=0]$ pwd
+/notes
+toshit@minios:/notes [t=0]$ write todo.txt buy milk
+saved 'todo.txt' as version 1 (8 bytes)
+toshit@minios:/notes [t=0]$ step 3
+t=0    P1 (clock) runs, 39 left
+t=1    P1 (clock) runs, 38 left
+t=2    P1 (clock) runs, 37 left
+toshit@minios:/notes [t=3]$ append todo.txt \nfinish OS project
+saved 'todo.txt' as version 2 (26 bytes)
+toshit@minios:/notes [t=3]$ step 4
+t=3    P1 (clock) runs, 36 left
+t=4    P1 (clock) runs, 35 left
+t=5    P1 (clock) runs, 34 left
+t=6    P1 (clock) runs, 33 left
+toshit@minios:/notes [t=7]$ append todo.txt \nsleep early
+saved 'todo.txt' as version 3 (38 bytes)
+toshit@minios:/notes [t=7]$ ls
+  todo.txt         v3      38 bytes   last change at t=7
+toshit@minios:/notes [t=7]$ cat todo.txt
+buy milk
+finish OS project
+sleep early
+toshit@minios:/notes [t=7]$ echo ----- every save is a version, with the tick it was saved at -----
+----- every save is a version, with the tick it was saved at -----
+toshit@minios:/notes [t=7]$ versions todo.txt
+  v1   t=0        8 bytes   "buy milk"
+  v2   t=3       26 bytes   "buy milk\nfinish OS project"
+  v3   t=7       38 bytes   "buy milk\nfinish OS project\nsle..."
+toshit@minios:/notes [t=7]$ diff todo.txt 1 2
+diff todo.txt: v1 -> v2
+    buy milk
+  + finish OS project
+toshit@minios:/notes [t=7]$ diff todo.txt 2 3
+diff todo.txt: v2 -> v3
+    buy milk
+    finish OS project
+  + sleep early
+toshit@minios:/notes [t=7]$ echo ----- oops, go back to version 1. Nothing is lost: restore adds a NEW version -----
+----- oops, go back to version 1. Nothing is lost: restore adds a NEW version -----
+toshit@minios:/notes [t=7]$ restore todo.txt 1
+restored version 1 of 'todo.txt' as the new version 4
+toshit@minios:/notes [t=7]$ cat todo.txt
+buy milk
+toshit@minios:/notes [t=7]$ versions todo.txt
+  v1   t=0        8 bytes   "buy milk"
+  v2   t=3       26 bytes   "buy milk\nfinish OS project"
+  v3   t=7       38 bytes   "buy milk\nfinish OS project\nsle..."
+  v4   t=7        8 bytes   "buy milk"
+toshit@minios:/notes [t=7]$ echo ----- deleting only moves the file to trash -----
+----- deleting only moves the file to trash -----
+toshit@minios:/notes [t=7]$ rm todo.txt
+'todo.txt' moved to trash (bring it back with: recover todo.txt)
+toshit@minios:/notes [t=7]$ ls
+  (empty)
+toshit@minios:/notes [t=7]$ trash
+  todo.txt         from notes        4 version(s), deleted at t=7
+toshit@minios:/notes [t=7]$ recover todo.txt
+'todo.txt' recovered with all 4 version(s)
+toshit@minios:/notes [t=7]$ ls
+  todo.txt         v4       8 bytes   last change at t=7
+toshit@minios:/notes [t=7]$ cat todo.txt
+buy milk
+toshit@minios:/notes [t=7]$ echo ----- a folder with files cannot be removed; an empty one can -----
+----- a folder with files cannot be removed; an empty one can -----
+toshit@minios:/notes [t=7]$ cd /
+toshit@minios:/ [t=7]$ rmdir notes
+rmdir: folder 'notes' is not empty (use rmdir -r to remove it with its content)
+toshit@minios:/ [t=7]$ cd notes
+toshit@minios:/notes [t=7]$ rm todo.txt
+'todo.txt' moved to trash (bring it back with: recover todo.txt)
+toshit@minios:/notes [t=7]$ cd /
+toshit@minios:/ [t=7]$ rmdir notes
+toshit@minios:/ [t=7]$ ls
+  (empty)
+toshit@minios:/ [t=7]$ trash
+  (trash is empty)
+toshit@minios:/ [t=7]$ dmesg 12
+[tick 0000] kernel booted
+[tick 0000] user 'toshit' logged in
+[tick 0000] P1 (clock) created, burst 40, priority 5, 4 KB
+[tick 0000] folder created: notes in /
+[tick 0000] file todo.txt saved as version 1
+[tick 0003] file todo.txt saved as version 2
+[tick 0007] file todo.txt saved as version 3
+[tick 0007] file todo.txt restored from version 1
+[tick 0007] file moved to trash: todo.txt
+[tick 0007] file recovered from trash: todo.txt
+[tick 0007] file moved to trash: todo.txt
+[tick 0007] folder removed: notes
+toshit@minios:/ [t=7]$ exit
+Shutting down MiniOS. Goodbye, toshit!

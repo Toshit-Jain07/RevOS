@@ -1,0 +1,41 @@
+toshit
+echo ===== Memory manager demo: fragmentation, fit strategies, compaction =====
+fit first
+run web 5 5 64
+run db 5 5 32
+run cache 5 5 48
+run logger 5 5 32
+run game 5 5 40
+memmap
+echo ----- kill P2 and P4 to punch holes in memory -----
+kill 2
+kill 4
+memmap
+echo ----- 104 KB is free in total, but no single hole can hold 60 KB: the process is refused -----
+run BIG 5 5 60
+doctor
+echo ----- compact moves everything together -----
+compact
+memmap
+run BIG 5 5 60
+memmap
+doctor
+echo ----- Compare first/best/worst fit on the same holes -----
+reboot
+fit first
+run A 5 5 40
+run B 5 5 16
+run C 5 5 24
+run D 5 5 16
+run E 5 5 40
+kill 2
+kill 4
+echo holes now: 16 KB at 40 and 16 KB at 80 (and the big free tail). Placing a 12 KB process:
+fit best
+run F 5 5 12
+memmap
+fit worst
+run G 5 5 12
+memmap
+stats
+exit

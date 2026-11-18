@@ -1,0 +1,36 @@
+[tick 0000] kernel booted
+[tick 0000] user 'toshit' logged in
+[tick 0000] file log.txt saved as version 1
+[tick 0000] file log.txt saved as version 2
+[tick 0000] file log.txt saved as version 3
+[tick 0000] file log.txt saved as version 4
+[tick 0000] file log.txt version 2 deleted
+[tick 0000] file log.txt pruned to 2 version(s)
+[tick 0000] file big saved as version 1
+[tick 0000] file big saved as version 2
+[tick 0000] file big saved as version 3
+[tick 0000] file big saved as version 4
+[tick 0000] file big saved as version 5
+[tick 0000] file big saved as version 6
+[tick 0000] file big saved as version 7
+[tick 0000] file big saved as version 8
+[tick 0000] file big saved as version 9
+[tick 0000] file big saved as version 10
+[tick 0000] file big saved as version 11
+[tick 0000] file big saved as version 12
+[tick 0000] file big saved as version 13
+[tick 0000] file big saved as version 14
+[tick 0000] file big saved as version 15
+[tick 0000] file big saved as version 16
+[tick 0000] file big saved as version 17
+[tick 0000] file big saved as version 18
+[tick 0000] file big saved as version 19
+[tick 0000] file big saved as version 20
+[tick 0000] file big saved as version 20
+[tick 0000] file big saved as version 20
+[tick 0000] file purged: big
+[tick 0000] folder created: tmp in /
+[tick 0000] file a saved as version 1
+[tick 0000] folder created: deep in /tmp
+[tick 0000] folder removed recursively: tmp
+[tick 0000] system shut down

@@ -1,0 +1,72 @@
+
+   
+hello
+run
+run a
+run a 0
+run a -5
+run a abc
+run a 5 99
+run a 5 x
+run a 5 5 0
+run a 5 5 9999
+run averyveryverylongname 5
+kill
+kill 99
+kill abc
+lock 1 x
+unlock 1 x
+step 0
+step abc
+sched
+sched foo
+sched rr 0
+sched rr 99
+aging maybe
+fit weird
+crash
+crash 7
+doctor
+gantt
+stats
+ps
+res
+memmap
+cd nothere
+cat nothere
+write
+write f
+append
+append f
+touch
+mkdir
+mkdir a/b
+mkdir ..
+touch ../x
+versions nothere
+restore nothere 1
+diff nothere 1 2
+rm
+rmdir
+rmdir nothere
+recover
+recover nothere
+history
+!99
+!0
+!!
+dmesg 0
+dmesg abc
+whoami
+echo   spaced    text \n newline
+reboot
+rmver
+rmver f
+rmver nofile 1
+prune
+prune nofile 2
+purge
+purge nofile
+rmdir -r
+rmdir -r nothere
+exit

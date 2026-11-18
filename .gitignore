@@ -1,0 +1,4 @@
+minios
+kernel.log
+build/
+*.o

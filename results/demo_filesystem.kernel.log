@@ -1,0 +1,13 @@
+[tick 0000] kernel booted
+[tick 0000] user 'toshit' logged in
+[tick 0000] P1 (clock) created, burst 40, priority 5, 4 KB
+[tick 0000] folder created: notes in /
+[tick 0000] file todo.txt saved as version 1
+[tick 0003] file todo.txt saved as version 2
+[tick 0007] file todo.txt saved as version 3
+[tick 0007] file todo.txt restored from version 1
+[tick 0007] file moved to trash: todo.txt
+[tick 0007] file recovered from trash: todo.txt
+[tick 0007] file moved to trash: todo.txt
+[tick 0007] folder removed: notes
+[tick 0007] system shut down

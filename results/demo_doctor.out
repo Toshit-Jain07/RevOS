@@ -1,0 +1,222 @@
+
+  __  __ _       _  ___  ____
+ |  \/  (_)_ __ (_)/ _ \/ ___|
+ | |\/| | | '_ \| | | | \___ \
+ | |  | | | | | | | |_| |___) |
+ |_|  |_|_|_| |_|_|\___/|____/
+        a tiny operating system
+
+[ OK ] Starting MiniOS kernel...
+[ OK ] Process table ready      (100 slots)
+[ OK ] Memory manager ready     (256 KB RAM)
+[ OK ] Scheduler ready          (Round Robin, quantum 3)
+[ OK ] File system mounted      (versioning ON)
+[ OK ] Doctor service started
+
+minios login: toshit
+Welcome, toshit! Type 'help' to see what you can do.
+
+toshit@minios:/ [t=0]$ echo ===== Doctor demo 1: a real deadlock, found and fixed =====
+===== Doctor demo 1: a real deadlock, found and fixed =====
+toshit@minios:/ [t=0]$ sched rr 2
+Scheduler switched to Round Robin, quantum 2 (at tick 0)
+toshit@minios:/ [t=0]$ run Alpha 6 5 16
+Created P1 'Alpha'  burst=6  priority=5  memory=16 KB at address 0
+toshit@minios:/ [t=0]$ run Beta 6 5 16
+Created P2 'Beta'  burst=6  priority=5  memory=16 KB at address 16
+toshit@minios:/ [t=0]$ run Gamma 6 5 16
+Created P3 'Gamma'  burst=6  priority=5  memory=16 KB at address 32
+toshit@minios:/ [t=0]$ lock 1 printer
+P1 acquired 'printer'
+toshit@minios:/ [t=0]$ lock 2 scanner
+P2 acquired 'scanner'
+toshit@minios:/ [t=0]$ echo ----- now each one asks for the other one's resource -----
+----- now each one asks for the other one's resource -----
+toshit@minios:/ [t=0]$ lock 1 scanner
+P1 is now BLOCKED: 'scanner' is held by P2
+toshit@minios:/ [t=0]$ lock 2 printer
+P2 is now BLOCKED: 'printer' is held by P1
+toshit@minios:/ [t=0]$ res
+  RESOURCE     HELD BY   WAITING
+  printer      P1        P2 
+  scanner      P2        P1 
+toshit@minios:/ [t=0]$ ps
+Scheduler: Round Robin, quantum 2 | aging off | tick 0
+ PID  NAME        STATE     PRI  BURST  LEFT  ARRIVE  MEM   WAITED
+ 1    Alpha       BLOCKED   5    6      6     0       16    0       waits for 'scanner'
+ 2    Beta        BLOCKED   5    6      6     0       16    0       waits for 'printer'
+ 3    Gamma       READY     5    6      6     0       16    0     
+toshit@minios:/ [t=0]$ doctor
+=== MiniOS doctor: health check at tick 0 ===
+[DEADLOCK] 2 processes are stuck in a circular wait:
+    P1 (Alpha) wants 'scanner', which is held by P2 (Beta)
+    P2 (Beta) wants 'printer', which is held by P1 (Alpha)
+    Suggestion: run 'doctor fix', or 'kill' one of them.
+Summary: 1 problem(s) found.
+toshit@minios:/ [t=0]$ echo ----- the OS is stuck: only Gamma can still run -----
+----- the OS is stuck: only Gamma can still run -----
+toshit@minios:/ [t=0]$ runall
+Ran 6 tick(s). The clock is now at tick 6.
+WARNING: 2 process(es) are still BLOCKED and cannot continue. Run 'doctor' to find out why.
+Gantt chart, ticks 0 to 6   (# running, . waiting/blocked)
+     0        <- tens of the tick number
+     012345   <- last digit of the tick number
+P1  |......|  Alpha
+P2  |......|  Beta
+P3  |######|  Gamma
+CPU order: P3(0-6) 
+toshit@minios:/ [t=6]$ echo ----- doctor fix kills the youngest process in the cycle -----
+----- doctor fix kills the youngest process in the cycle -----
+toshit@minios:/ [t=6]$ doctor fix
+=== MiniOS doctor: health check at tick 6 ===
+[DEADLOCK] 2 processes are stuck in a circular wait:
+    P1 (Alpha) wants 'scanner', which is held by P2 (Beta)
+    P2 (Beta) wants 'printer', which is held by P1 (Alpha)
+    FIX: killing P2 (Beta), the youngest process in the cycle, to break the deadlock
+  -> resource 'scanner' is now granted to P1, which is READY again
+Summary: 1 problem(s) reported, 1 deadlock(s) fixed.
+toshit@minios:/ [t=6]$ ps
+Scheduler: Round Robin, quantum 2 | aging off | tick 6
+ PID  NAME        STATE     PRI  BURST  LEFT  ARRIVE  MEM   WAITED
+ 1    Alpha       READY     5    6      6     0       16    6     
+ 2    Beta        KILLED    5    6      6     0       16    6     
+ 3    Gamma       DONE      5    6      0     0       16    0     
+toshit@minios:/ [t=6]$ runall
+Ran 6 tick(s). The clock is now at tick 12.
+Gantt chart, ticks 0 to 12   (# running, . waiting/blocked)
+     0         1    <- tens of the tick number
+     012345678901   <- last digit of the tick number
+P1  |......######|  Alpha
+P2  |......      |  Beta
+P3  |######      |  Gamma
+CPU order: P3(0-6) P1(6-12) 
+toshit@minios:/ [t=12]$ stats
+=== MiniOS statistics (tick 12) ===
+Scheduler            : Round Robin, quantum 2
+Processes            : 2 finished, 1 killed, 0 still alive
+Avg waiting time     : 3.00 ticks
+Avg turnaround time  : 9.00 ticks
+Avg response time    : 3.00 ticks
+CPU utilization      : 100.0%  (12 busy ticks of 12)
+Throughput           : 0.167 processes per tick
+Context switches     : 1
+Memory               : 0 of 256 KB used (0%), fragmentation 0%
+toshit@minios:/ [t=12]$ echo
+
+toshit@minios:/ [t=12]$ echo ===== Doctor demo 2: starvation, then aging fixes it =====
+===== Doctor demo 2: starvation, then aging fixes it =====
+toshit@minios:/ [t=12]$ reboot
+Rebooted. All processes, memory, resources and files were reset.
+toshit@minios:/ [t=0]$ sched priority
+Scheduler switched to Priority (preemptive, 0 = highest priority) (at tick 0)
+toshit@minios:/ [t=0]$ run Big 30 2 16
+Created P1 'Big'  burst=30  priority=2  memory=16 KB at address 0
+toshit@minios:/ [t=0]$ run Small 5 4 16
+Created P2 'Small'  burst=5  priority=4  memory=16 KB at address 16
+toshit@minios:/ [t=0]$ step 20
+t=0    P1 (Big) runs, 29 left
+t=1    P1 (Big) runs, 28 left
+t=2    P1 (Big) runs, 27 left
+t=3    P1 (Big) runs, 26 left
+t=4    P1 (Big) runs, 25 left
+t=5    P1 (Big) runs, 24 left
+t=6    P1 (Big) runs, 23 left
+t=7    P1 (Big) runs, 22 left
+t=8    P1 (Big) runs, 21 left
+t=9    P1 (Big) runs, 20 left
+t=10   P1 (Big) runs, 19 left
+t=11   P1 (Big) runs, 18 left
+t=12   P1 (Big) runs, 17 left
+t=13   P1 (Big) runs, 16 left
+t=14   P1 (Big) runs, 15 left
+t=15   P1 (Big) runs, 14 left
+t=16   P1 (Big) runs, 13 left
+t=17   P1 (Big) runs, 12 left
+t=18   P1 (Big) runs, 11 left
+t=19   P1 (Big) runs, 10 left
+toshit@minios:/ [t=20]$ doctor
+=== MiniOS doctor: health check at tick 20 ===
+[STARVATION] P2 (Small) has waited 20 ticks without getting the CPU.
+    Suggestion: turn on 'aging on' or switch to a fairer scheduler like 'sched rr'.
+Summary: 1 problem(s) found.
+toshit@minios:/ [t=20]$ echo ----- same workload with aging on -----
+----- same workload with aging on -----
+toshit@minios:/ [t=20]$ reboot
+Rebooted. All processes, memory, resources and files were reset.
+toshit@minios:/ [t=0]$ sched priority
+Scheduler switched to Priority (preemptive, 0 = highest priority) (at tick 0)
+toshit@minios:/ [t=0]$ aging on
+Aging is now ON.
+toshit@minios:/ [t=0]$ run Big 30 2 16
+Created P1 'Big'  burst=30  priority=2  memory=16 KB at address 0
+toshit@minios:/ [t=0]$ run Small 5 4 16
+Created P2 'Small'  burst=5  priority=4  memory=16 KB at address 16
+toshit@minios:/ [t=0]$ runall
+Ran 35 tick(s). The clock is now at tick 35.
+Gantt chart, ticks 0 to 35   (# running, . waiting/blocked)
+     0         1         2         3       <- tens of the tick number
+     01234567890123456789012345678901234   <- last digit of the tick number
+P1  |###############.....###############|  Big
+P2  |...............#####               |  Small
+CPU order: P1(0-15) P2(15-20) P1(20-35) 
+toshit@minios:/ [t=35]$ stats
+=== MiniOS statistics (tick 35) ===
+Scheduler            : Priority (preemptive, 0 = highest priority)
+Processes            : 2 finished, 0 killed, 0 still alive
+Avg waiting time     : 10.00 ticks
+Avg turnaround time  : 27.50 ticks
+Avg response time    : 7.50 ticks
+CPU utilization      : 100.0%  (35 busy ticks of 35)
+Throughput           : 0.057 processes per tick
+Context switches     : 2
+Memory               : 0 of 256 KB used (0%), fragmentation 0%
+toshit@minios:/ [t=35]$ dmesg 8
+[tick 0000] P2 (Small) created, burst 5, priority 4, 16 KB
+[tick 0005] aging: P2 priority boosted to 3
+[tick 0010] aging: P2 priority boosted to 2
+[tick 0015] aging: P2 priority boosted to 1
+[tick 0015] P1 preempted by P2
+[tick 0020] P2 (Small) finished
+[tick 0020] aging: P1 priority boosted to 1
+[tick 0035] P1 (Big) finished
+toshit@minios:/ [t=35]$ echo
+
+toshit@minios:/ [t=35]$ echo ===== Doctor demo 3: crash simulation =====
+===== Doctor demo 3: crash simulation =====
+toshit@minios:/ [t=35]$ reboot
+Rebooted. All processes, memory, resources and files were reset.
+toshit@minios:/ [t=0]$ run W1 10 5 32
+Created P1 'W1'  burst=10  priority=5  memory=32 KB at address 0
+toshit@minios:/ [t=0]$ run W2 10 5 32
+Created P2 'W2'  burst=10  priority=5  memory=32 KB at address 32
+toshit@minios:/ [t=0]$ lock 1 disk
+P1 acquired 'disk'
+toshit@minios:/ [t=0]$ memmap
+Memory map  (each cell = 4 KB, total = 256 KB, strategy = first-fit)
+[1111111122222222................................................]
+  Start   End   Size  Owner
+      0    31    32  P1 (W1)
+     32    63    32  P2 (W2)
+     64   255   192  free
+Used: 64 KB (25%)   Free: 192 KB   Largest free hole: 192 KB   External fragmentation: 0%
+toshit@minios:/ [t=0]$ crash 1
+*** P1 (W1) crashed: segmentation fault (simulated) ***
+OS cleanup done: freed 32 KB of memory and released 1 resource(s). The system is still running.
+toshit@minios:/ [t=0]$ ps
+Scheduler: Round Robin, quantum 3 | aging off | tick 0
+ PID  NAME        STATE     PRI  BURST  LEFT  ARRIVE  MEM   WAITED
+ 1    W1          KILLED    5    10     10    0       32    0     
+ 2    W2          READY     5    10     10    0       32    0     
+toshit@minios:/ [t=0]$ res
+  RESOURCE     HELD BY   WAITING
+  disk         free      
+toshit@minios:/ [t=0]$ memmap
+Memory map  (each cell = 4 KB, total = 256 KB, strategy = first-fit)
+[........22222222................................................]
+  Start   End   Size  Owner
+      0    31    32  free
+     32    63    32  P2 (W2)
+     64   255   192  free
+Used: 32 KB (12%)   Free: 224 KB   Largest free hole: 192 KB   External fragmentation: 14%
+toshit@minios:/ [t=0]$ exit
+Shutting down MiniOS. Goodbye, toshit!

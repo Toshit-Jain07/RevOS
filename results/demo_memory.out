@@ -1,0 +1,167 @@
+
+  __  __ _       _  ___  ____
+ |  \/  (_)_ __ (_)/ _ \/ ___|
+ | |\/| | | '_ \| | | | \___ \
+ | |  | | | | | | | |_| |___) |
+ |_|  |_|_|_| |_|_|\___/|____/
+        a tiny operating system
+
+[ OK ] Starting MiniOS kernel...
+[ OK ] Process table ready      (100 slots)
+[ OK ] Memory manager ready     (256 KB RAM)
+[ OK ] Scheduler ready          (Round Robin, quantum 3)
+[ OK ] File system mounted      (versioning ON)
+[ OK ] Doctor service started
+
+minios login: toshit
+Welcome, toshit! Type 'help' to see what you can do.
+
+toshit@minios:/ [t=0]$ echo ===== Memory manager demo: fragmentation, fit strategies, compaction =====
+===== Memory manager demo: fragmentation, fit strategies, compaction =====
+toshit@minios:/ [t=0]$ fit first
+Memory strategy is now first-fit (applies to processes created from now on).
+toshit@minios:/ [t=0]$ run web 5 5 64
+Created P1 'web'  burst=5  priority=5  memory=64 KB at address 0
+toshit@minios:/ [t=0]$ run db 5 5 32
+Created P2 'db'  burst=5  priority=5  memory=32 KB at address 64
+toshit@minios:/ [t=0]$ run cache 5 5 48
+Created P3 'cache'  burst=5  priority=5  memory=48 KB at address 96
+toshit@minios:/ [t=0]$ run logger 5 5 32
+Created P4 'logger'  burst=5  priority=5  memory=32 KB at address 144
+toshit@minios:/ [t=0]$ run game 5 5 40
+Created P5 'game'  burst=5  priority=5  memory=40 KB at address 176
+toshit@minios:/ [t=0]$ memmap
+Memory map  (each cell = 4 KB, total = 256 KB, strategy = first-fit)
+[111111111111111122222222333333333333444444445555555555..........]
+  Start   End   Size  Owner
+      0    63    64  P1 (web)
+     64    95    32  P2 (db)
+     96   143    48  P3 (cache)
+    144   175    32  P4 (logger)
+    176   215    40  P5 (game)
+    216   255    40  free
+Used: 216 KB (84%)   Free: 40 KB   Largest free hole: 40 KB   External fragmentation: 0%
+toshit@minios:/ [t=0]$ echo ----- kill P2 and P4 to punch holes in memory -----
+----- kill P2 and P4 to punch holes in memory -----
+toshit@minios:/ [t=0]$ kill 2
+Killing P2 (db)...
+P2 killed. 32 KB of memory freed and its resources released.
+toshit@minios:/ [t=0]$ kill 4
+Killing P4 (logger)...
+P4 killed. 32 KB of memory freed and its resources released.
+toshit@minios:/ [t=0]$ memmap
+Memory map  (each cell = 4 KB, total = 256 KB, strategy = first-fit)
+[1111111111111111........333333333333........5555555555..........]
+  Start   End   Size  Owner
+      0    63    64  P1 (web)
+     64    95    32  free
+     96   143    48  P3 (cache)
+    144   175    32  free
+    176   215    40  P5 (game)
+    216   255    40  free
+Used: 152 KB (59%)   Free: 104 KB   Largest free hole: 40 KB   External fragmentation: 61%
+toshit@minios:/ [t=0]$ echo ----- 104 KB is free in total, but no single hole can hold 60 KB: the process is refused -----
+----- 104 KB is free in total, but no single hole can hold 60 KB: the process is refused -----
+toshit@minios:/ [t=0]$ run BIG 5 5 60
+run: out of memory. Needed 60 KB in one piece, largest free hole is 40 KB (total free 104 KB).
+     There is enough free memory in total, but it is fragmented. Try the 'compact' command.
+toshit@minios:/ [t=0]$ doctor
+=== MiniOS doctor: health check at tick 0 ===
+[MEMORY] External fragmentation is 61%: 104 KB are free but the biggest hole is only 40 KB.
+    Suggestion: run 'compact'.
+Summary: 1 problem(s) found.
+toshit@minios:/ [t=0]$ echo ----- compact moves everything together -----
+----- compact moves everything together -----
+toshit@minios:/ [t=0]$ compact
+Memory compacted. Fragmentation: 61% -> 0%   Largest free hole: 40 KB -> 104 KB
+toshit@minios:/ [t=0]$ memmap
+Memory map  (each cell = 4 KB, total = 256 KB, strategy = first-fit)
+[11111111111111113333333333335555555555..........................]
+  Start   End   Size  Owner
+      0    63    64  P1 (web)
+     64   111    48  P3 (cache)
+    112   151    40  P5 (game)
+    152   255   104  free
+Used: 152 KB (59%)   Free: 104 KB   Largest free hole: 104 KB   External fragmentation: 0%
+toshit@minios:/ [t=0]$ run BIG 5 5 60
+Created P6 'BIG'  burst=5  priority=5  memory=60 KB at address 152
+toshit@minios:/ [t=0]$ memmap
+Memory map  (each cell = 4 KB, total = 256 KB, strategy = first-fit)
+[11111111111111113333333333335555555555666666666666666...........]
+  Start   End   Size  Owner
+      0    63    64  P1 (web)
+     64   111    48  P3 (cache)
+    112   151    40  P5 (game)
+    152   211    60  P6 (BIG)
+    212   255    44  free
+Used: 212 KB (82%)   Free: 44 KB   Largest free hole: 44 KB   External fragmentation: 0%
+toshit@minios:/ [t=0]$ doctor
+=== MiniOS doctor: health check at tick 0 ===
+System healthy. No problems found.
+toshit@minios:/ [t=0]$ echo ----- Compare first/best/worst fit on the same holes -----
+----- Compare first/best/worst fit on the same holes -----
+toshit@minios:/ [t=0]$ reboot
+Rebooted. All processes, memory, resources and files were reset.
+toshit@minios:/ [t=0]$ fit first
+Memory strategy is now first-fit (applies to processes created from now on).
+toshit@minios:/ [t=0]$ run A 5 5 40
+Created P1 'A'  burst=5  priority=5  memory=40 KB at address 0
+toshit@minios:/ [t=0]$ run B 5 5 16
+Created P2 'B'  burst=5  priority=5  memory=16 KB at address 40
+toshit@minios:/ [t=0]$ run C 5 5 24
+Created P3 'C'  burst=5  priority=5  memory=24 KB at address 56
+toshit@minios:/ [t=0]$ run D 5 5 16
+Created P4 'D'  burst=5  priority=5  memory=16 KB at address 80
+toshit@minios:/ [t=0]$ run E 5 5 40
+Created P5 'E'  burst=5  priority=5  memory=40 KB at address 96
+toshit@minios:/ [t=0]$ kill 2
+Killing P2 (B)...
+P2 killed. 16 KB of memory freed and its resources released.
+toshit@minios:/ [t=0]$ kill 4
+Killing P4 (D)...
+P4 killed. 16 KB of memory freed and its resources released.
+toshit@minios:/ [t=0]$ echo holes now: 16 KB at 40 and 16 KB at 80 (and the big free tail). Placing a 12 KB process:
+holes now: 16 KB at 40 and 16 KB at 80 (and the big free tail). Placing a 12 KB process:
+toshit@minios:/ [t=0]$ fit best
+Memory strategy is now best-fit (applies to processes created from now on).
+toshit@minios:/ [t=0]$ run F 5 5 12
+Created P6 'F'  burst=5  priority=5  memory=12 KB at address 40
+toshit@minios:/ [t=0]$ memmap
+Memory map  (each cell = 4 KB, total = 256 KB, strategy = best-fit)
+[1111111111666.333333....5555555555..............................]
+  Start   End   Size  Owner
+      0    39    40  P1 (A)
+     40    51    12  P6 (F)
+     52    55     4  free
+     56    79    24  P3 (C)
+     80    95    16  free
+     96   135    40  P5 (E)
+    136   255   120  free
+Used: 116 KB (45%)   Free: 140 KB   Largest free hole: 120 KB   External fragmentation: 14%
+toshit@minios:/ [t=0]$ fit worst
+Memory strategy is now worst-fit (applies to processes created from now on).
+toshit@minios:/ [t=0]$ run G 5 5 12
+Created P7 'G'  burst=5  priority=5  memory=12 KB at address 136
+toshit@minios:/ [t=0]$ memmap
+Memory map  (each cell = 4 KB, total = 256 KB, strategy = worst-fit)
+[1111111111666.333333....5555555555777...........................]
+  Start   End   Size  Owner
+      0    39    40  P1 (A)
+     40    51    12  P6 (F)
+     52    55     4  free
+     56    79    24  P3 (C)
+     80    95    16  free
+     96   135    40  P5 (E)
+    136   147    12  P7 (G)
+    148   255   108  free
+Used: 128 KB (50%)   Free: 128 KB   Largest free hole: 108 KB   External fragmentation: 15%
+toshit@minios:/ [t=0]$ stats
+=== MiniOS statistics (tick 0) ===
+Scheduler            : Round Robin, quantum 3
+Processes            : 0 finished, 2 killed, 5 still alive
+Avg waiting/turnaround/response: no finished process yet
+CPU utilization      : 0.0%
+Context switches     : 0
+Memory               : 128 of 256 KB used (50%), fragmentation 15%
+toshit@minios:/ [t=0]$ exit
+Shutting down MiniOS. Goodbye, toshit!

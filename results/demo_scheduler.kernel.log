@@ -1,0 +1,76 @@
+[tick 0000] kernel booted
+[tick 0000] user 'toshit' logged in
+[tick 0000] scheduler switched to FCFS (first come first served)
+[tick 0000] P1 (A) created, burst 8, priority 3, 16 KB
+[tick 0000] P2 (B) created, burst 4, priority 1, 16 KB
+[tick 0000] P3 (C) created, burst 9, priority 4, 16 KB
+[tick 0000] P4 (D) created, burst 5, priority 2, 16 KB
+[tick 0008] P1 (A) finished
+[tick 0012] P2 (B) finished
+[tick 0021] P3 (C) finished
+[tick 0026] P4 (D) finished
+[tick 0000] ---- system rebooted ----
+[tick 0000] scheduler switched to SJF (shortest job first, non-preemptive)
+[tick 0000] P1 (A) created, burst 8, priority 3, 16 KB
+[tick 0000] P2 (B) created, burst 4, priority 1, 16 KB
+[tick 0000] P3 (C) created, burst 9, priority 4, 16 KB
+[tick 0000] P4 (D) created, burst 5, priority 2, 16 KB
+[tick 0004] P2 (B) finished
+[tick 0009] P4 (D) finished
+[tick 0017] P1 (A) finished
+[tick 0026] P3 (C) finished
+[tick 0000] ---- system rebooted ----
+[tick 0000] scheduler switched to SRTF (shortest remaining time first, preemptive)
+[tick 0000] P1 (A) created, burst 8, priority 3, 16 KB
+[tick 0000] P2 (B) created, burst 4, priority 1, 16 KB
+[tick 0000] P3 (C) created, burst 9, priority 4, 16 KB
+[tick 0000] P4 (D) created, burst 5, priority 2, 16 KB
+[tick 0004] P2 (B) finished
+[tick 0009] P4 (D) finished
+[tick 0017] P1 (A) finished
+[tick 0026] P3 (C) finished
+[tick 0000] ---- system rebooted ----
+[tick 0000] scheduler switched to Priority (preemptive, 0 = highest priority)
+[tick 0000] P1 (A) created, burst 8, priority 2, 16 KB
+[tick 0000] P2 (B) created, burst 4, priority 4, 16 KB
+[tick 0000] P3 (C) created, burst 9, priority 1, 16 KB
+[tick 0000] P4 (D) created, burst 5, priority 3, 16 KB
+[tick 0009] P3 (C) finished
+[tick 0017] P1 (A) finished
+[tick 0022] P4 (D) finished
+[tick 0026] P2 (B) finished
+[tick 0000] ---- system rebooted ----
+[tick 0000] scheduler switched to Round Robin
+[tick 0000] P1 (A) created, burst 8, priority 3, 16 KB
+[tick 0000] P2 (B) created, burst 4, priority 1, 16 KB
+[tick 0000] P3 (C) created, burst 9, priority 4, 16 KB
+[tick 0000] P4 (D) created, burst 5, priority 2, 16 KB
+[tick 0016] P2 (B) finished
+[tick 0021] P4 (D) finished
+[tick 0023] P1 (A) finished
+[tick 0026] P3 (C) finished
+[tick 0000] ---- system rebooted ----
+[tick 0000] scheduler switched to SJF (shortest job first, non-preemptive)
+[tick 0000] P1 (L) created, burst 10, priority 5, 16 KB
+[tick 0003] P2 (S) created, burst 2, priority 5, 16 KB
+[tick 0010] P1 (L) finished
+[tick 0012] P2 (S) finished
+[tick 0000] ---- system rebooted ----
+[tick 0000] scheduler switched to SRTF (shortest remaining time first, preemptive)
+[tick 0000] P1 (L) created, burst 10, priority 5, 16 KB
+[tick 0003] P2 (S) created, burst 2, priority 5, 16 KB
+[tick 0003] P1 preempted by P2
+[tick 0005] P2 (S) finished
+[tick 0012] P1 (L) finished
+[tick 0000] ---- system rebooted ----
+[tick 0000] scheduler switched to Round Robin
+[tick 0000] P1 (X) created, burst 6, priority 5, 16 KB
+[tick 0000] P2 (Y) created, burst 3, priority 5, 16 KB
+[tick 0000] P3 (Z) created, burst 8, priority 5, 16 KB
+[tick 0005] scheduler switched to SRTF (shortest remaining time first, preemptive)
+[tick 0005] P3 preempted by P2
+[tick 0006] P2 (Y) finished
+[tick 0008] scheduler switched to FCFS (first come first served)
+[tick 0010] P1 (X) finished
+[tick 0017] P3 (Z) finished
+[tick 0017] system shut down

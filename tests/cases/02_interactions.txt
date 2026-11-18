@@ -1,0 +1,71 @@
+tester
+echo === T1: three-way deadlock cycle P1->P2->P3->P1 plus an innocent bystander P4 ===
+sched fcfs
+run a 5
+run b 5
+run c 5
+run d 5
+lock 1 r1
+lock 2 r2
+lock 3 r3
+lock 1 r2
+lock 2 r3
+lock 3 r1
+doctor
+doctor fix
+ps
+res
+runall
+echo === T2: process that is RUNNING asks for a held lock -> must leave the CPU ===
+reboot
+sched rr 4
+run x 8
+run y 8
+run z 8
+lock 3 L
+step 2
+lock 1 L
+ps
+step 4
+echo (x is blocked, y runs; now z unlocks)
+unlock 3 L
+ps
+runall
+echo === T3: kill the running process mid-slice ===
+reboot
+sched rr 5
+run m 6
+run n 6
+step 2
+kill 1
+step 1
+ps
+runall
+echo === T4: kill a process that holds a lock someone waits for ===
+reboot
+sched fcfs
+run h 5
+run w 5
+lock 1 key
+lock 2 key
+doctor
+kill 1
+ps
+res
+runall
+echo === T5: non-deadlock blocked chain ===
+reboot
+run p 5
+run q 5
+lock 1 k
+lock 2 k
+doctor
+echo === T6: process arrives while CPU is idle (gap in the Gantt chart) ===
+reboot
+run first 2
+runall
+step 3
+run second 2
+runall
+stats
+exit

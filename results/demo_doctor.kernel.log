@@ -1,0 +1,39 @@
+[tick 0000] kernel booted
+[tick 0000] user 'toshit' logged in
+[tick 0000] scheduler switched to Round Robin
+[tick 0000] P1 (Alpha) created, burst 6, priority 5, 16 KB
+[tick 0000] P2 (Beta) created, burst 6, priority 5, 16 KB
+[tick 0000] P3 (Gamma) created, burst 6, priority 5, 16 KB
+[tick 0000] P1 acquired 'printer'
+[tick 0000] P2 acquired 'scanner'
+[tick 0000] P1 blocked waiting for 'scanner' held by P2
+[tick 0000] P2 blocked waiting for 'printer' held by P1
+[tick 0000] doctor ran: 1 problem(s), 0 fixed
+[tick 0006] P3 (Gamma) finished
+[tick 0006] resource 'scanner' granted to P1
+[tick 0006] P2 (Beta) killed by doctor to break a deadlock
+[tick 0006] doctor ran: 1 problem(s), 1 fixed
+[tick 0012] P1 (Alpha) finished
+[tick 0000] ---- system rebooted ----
+[tick 0000] scheduler switched to Priority (preemptive, 0 = highest priority)
+[tick 0000] P1 (Big) created, burst 30, priority 2, 16 KB
+[tick 0000] P2 (Small) created, burst 5, priority 4, 16 KB
+[tick 0020] doctor ran: 1 problem(s), 0 fixed
+[tick 0000] ---- system rebooted ----
+[tick 0000] scheduler switched to Priority (preemptive, 0 = highest priority)
+[tick 0000] aging enabled
+[tick 0000] P1 (Big) created, burst 30, priority 2, 16 KB
+[tick 0000] P2 (Small) created, burst 5, priority 4, 16 KB
+[tick 0005] aging: P2 priority boosted to 3
+[tick 0010] aging: P2 priority boosted to 2
+[tick 0015] aging: P2 priority boosted to 1
+[tick 0015] P1 preempted by P2
+[tick 0020] P2 (Small) finished
+[tick 0020] aging: P1 priority boosted to 1
+[tick 0035] P1 (Big) finished
+[tick 0000] ---- system rebooted ----
+[tick 0000] P1 (W1) created, burst 10, priority 5, 32 KB
+[tick 0000] P2 (W2) created, burst 10, priority 5, 32 KB
+[tick 0000] P1 acquired 'disk'
+[tick 0000] P1 (W1) crashed (simulated SIGSEGV)
+[tick 0000] system shut down

@@ -1,0 +1,50 @@
+toshit
+echo ===== Doctor demo 1: a real deadlock, found and fixed =====
+sched rr 2
+run Alpha 6 5 16
+run Beta 6 5 16
+run Gamma 6 5 16
+lock 1 printer
+lock 2 scanner
+echo ----- now each one asks for the other one's resource -----
+lock 1 scanner
+lock 2 printer
+res
+ps
+doctor
+echo ----- the OS is stuck: only Gamma can still run -----
+runall
+echo ----- doctor fix kills the youngest process in the cycle -----
+doctor fix
+ps
+runall
+stats
+echo
+echo ===== Doctor demo 2: starvation, then aging fixes it =====
+reboot
+sched priority
+run Big 30 2 16
+run Small 5 4 16
+step 20
+doctor
+echo ----- same workload with aging on -----
+reboot
+sched priority
+aging on
+run Big 30 2 16
+run Small 5 4 16
+runall
+stats
+dmesg 8
+echo
+echo ===== Doctor demo 3: crash simulation =====
+reboot
+run W1 10 5 32
+run W2 10 5 32
+lock 1 disk
+memmap
+crash 1
+ps
+res
+memmap
+exit

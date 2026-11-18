@@ -1,0 +1,29 @@
+[tick 0000] kernel booted
+[tick 0000] user 'toshit' logged in
+[tick 0000] memory strategy set to first-fit
+[tick 0000] P1 (web) created, burst 5, priority 5, 64 KB
+[tick 0000] P2 (db) created, burst 5, priority 5, 32 KB
+[tick 0000] P3 (cache) created, burst 5, priority 5, 48 KB
+[tick 0000] P4 (logger) created, burst 5, priority 5, 32 KB
+[tick 0000] P5 (game) created, burst 5, priority 5, 40 KB
+[tick 0000] P2 (db) killed by user
+[tick 0000] P4 (logger) killed by user
+[tick 0000] process 'BIG' refused: out of memory
+[tick 0000] doctor ran: 1 problem(s), 0 fixed
+[tick 0000] memory compacted
+[tick 0000] P6 (BIG) created, burst 5, priority 5, 60 KB
+[tick 0000] doctor ran: 0 problem(s), 0 fixed
+[tick 0000] ---- system rebooted ----
+[tick 0000] memory strategy set to first-fit
+[tick 0000] P1 (A) created, burst 5, priority 5, 40 KB
+[tick 0000] P2 (B) created, burst 5, priority 5, 16 KB
+[tick 0000] P3 (C) created, burst 5, priority 5, 24 KB
+[tick 0000] P4 (D) created, burst 5, priority 5, 16 KB
+[tick 0000] P5 (E) created, burst 5, priority 5, 40 KB
+[tick 0000] P2 (B) killed by user
+[tick 0000] P4 (D) killed by user
+[tick 0000] memory strategy set to best-fit
+[tick 0000] P6 (F) created, burst 5, priority 5, 12 KB
+[tick 0000] memory strategy set to worst-fit
+[tick 0000] P7 (G) created, burst 5, priority 5, 12 KB
+[tick 0000] system shut down

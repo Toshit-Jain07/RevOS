@@ -1,0 +1,57 @@
+toshit
+echo ===== Space saving + delete demo: delta versions, dedup, rmver, prune, purge =====
+write log.txt line one
+echo ----- saving identical content stores nothing -----
+write log.txt line one
+append log.txt \nline two
+append log.txt \nline three
+append log.txt \nline four
+versions log.txt
+echo ----- only the changed part of each version is stored -----
+fsstat
+echo ----- delete one version (the rest still rebuild correctly) -----
+rmver log.txt 2
+versions log.txt
+diff log.txt 1 3
+cat log.txt
+echo ----- keep only the newest 2 versions -----
+prune log.txt 2
+versions log.txt
+echo ----- the file is capped at 20 versions, the oldest is dropped automatically -----
+write big v0
+append big 1
+append big 2
+append big 3
+append big 4
+append big 5
+append big 6
+append big 7
+append big 8
+append big 9
+append big a
+append big b
+append big c
+append big d
+append big e
+append big f
+append big g
+append big h
+append big i
+append big j
+append big k
+append big l
+versions big
+fsstat
+echo ----- delete for good: purge skips the trash, rmdir -r removes a whole folder -----
+purge big
+mkdir tmp
+cd tmp
+write a 1
+mkdir deep
+cd /
+rmdir tmp
+rmdir -r tmp
+ls
+trash
+fsstat
+exit
